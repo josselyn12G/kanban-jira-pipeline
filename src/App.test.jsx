@@ -62,4 +62,11 @@ describe('App Kanban', () => {
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
     expect(screen.queryByText('Login')).not.toBeInTheDocument();
   });
+
+  it('enfoca el buscador con el atajo Ctrl+K', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.keyboard('{Control>}k{/Control}');
+    expect(screen.getByLabelText('Buscar tarea')).toHaveFocus();
+  });
 });
