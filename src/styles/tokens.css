@@ -1,0 +1,32 @@
+/* Design tokens: colores, radios y tipografía */
+:root {
+  --page: #c9dbd5;
+  --shell: #f6f8f7;
+  --surface: #ffffff;
+  --text: #1d2321;
+  --muted: #6f7975;
+  --line: #e6ebe9;
+  --teal: #2f8a7e;
+  --teal-soft: #dcefeb;
+  --accent: #f5d565;
+  --accent-strong: #ecc63d;
+  --danger: #d9534f;
+
+  --col-pending: #f6d9ef;
+  --col-pending-dot: #e276b9;
+  --col-progress: #f5e2c8;
+  --col-progress-dot: #e89a3c;
+  --col-done: #ddd6fb;
+  --col-done-dot: #8b76e6;
+
+  --radius: 18px;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}

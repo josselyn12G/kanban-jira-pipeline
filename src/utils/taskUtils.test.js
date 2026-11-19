@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { createTask, updateTask, deleteTask, moveTask, getTasksByStatus, clearCompleted } from './taskUtils';
+import {
+  createTask,
+  updateTask,
+  deleteTask,
+  moveTask,
+  getTasksByStatus,
+  clearCompleted,
+  filterTasks,
+  sortTasks,
+} from './taskUtils';
 
 describe('taskUtils', () => {
   it('crea una tarea en estado Pendiente', () => {
@@ -45,5 +54,25 @@ describe('taskUtils', () => {
     const result = clearCompleted(moved);
     expect(result).toHaveLength(1);
     expect(result[0].title).toBe('Pendiente');
+  });
+
+  it('pone el progreso en 100% al completar una tarea', () => {
+    const [task] = createTask([], { title: 'Terminar', progress: 40 });
+    const [done] = moveTask([task], task.id, 'done');
+    expect(done.progress).toBe(100);
+  });
+
+  it('ordena por prioridad (alta primero)', () => {
+    let tasks = createTask([], { title: 'Baja', priority: 'low' });
+    tasks = createTask(tasks, { title: 'Alta', priority: 'high' });
+    tasks = createTask(tasks, { title: 'Media', priority: 'medium' });
+    expect(sortTasks(tasks, 'priority').map((t) => t.title)).toEqual(['Alta', 'Media', 'Baja']);
+  });
+
+  it('filtra por texto en título o nota', () => {
+    let tasks = createTask([], { title: 'API', description: 'endpoint de usuarios' });
+    tasks = createTask(tasks, { title: 'Logo' });
+    expect(filterTasks(tasks, 'usuarios')).toHaveLength(1);
+    expect(filterTasks(tasks, '')).toHaveLength(2);
   });
 });

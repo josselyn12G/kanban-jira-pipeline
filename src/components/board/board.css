@@ -1,0 +1,125 @@
+/* Tablero, columnas y barra de herramientas */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.toolbar-left {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.sort select {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.column {
+  border-radius: var(--radius);
+  padding: 14px;
+  min-height: 420px;
+  transition: box-shadow 0.15s ease;
+}
+.column.over {
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.12);
+}
+.column-pending {
+  background: var(--col-pending);
+  --dot: var(--col-pending-dot);
+}
+.column-in-progress {
+  background: var(--col-progress);
+  --dot: var(--col-progress-dot);
+}
+.column-done {
+  background: var(--col-done);
+  --dot: var(--col-done-dot);
+}
+
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+.column-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--dot);
+}
+.count {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  min-width: 24px;
+  text-align: center;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.column-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.empty {
+  margin: 0;
+  padding: 28px 12px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  border: 1.5px dashed rgba(0, 0, 0, 0.12);
+  border-radius: 14px;
+}
+.clear-btn {
+  width: 100%;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 0;
+  border-radius: 10px;
+  padding: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.clear-btn:hover {
+  background: #fff;
+}
+
+@media (max-width: 960px) {
+  .board {
+    grid-template-columns: 1fr;
+  }
+  .column {
+    min-height: 0;
+  }
+}
