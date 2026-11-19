@@ -109,6 +109,10 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       REPO: ${{ github.repository }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Abrir PR develop → main si no existe
         run: |
           ahead=$(gh api "repos/$REPO/compare/main...develop" --jq '.ahead_by')
@@ -121,9 +125,12 @@ jobs:
             echo "Ya existe el PR #$existing (se actualiza con este push)."
             echo "### 📦 Release PR: #$existing" >> "$GITHUB_STEP_SUMMARY"
           else
+            version=$(node -p "require('./package.json').version")
+            cambios=$(git log --no-merges --format='- %s' origin/main..origin/develop)
+            body=$(printf 'Release generado automáticamente por el pipeline tras pasar lint, pruebas y build en `develop`. Al hacer merge se despliega a producción.\n\n## Cambios\n%s\n' "$cambios")
             gh pr create --repo "$REPO" --base main --head develop \
-              --title "Release: develop → main" \
-              --body "PR generado automáticamente por el pipeline tras pasar pruebas y build en \`develop\`. Al hacer merge se despliega a producción." \
+              --title "chore(release): versión $version" \
+              --body "$body" \
             || echo "::warning::No se pudo crear el PR. Activa 'Allow GitHub Actions to create and approve pull requests' en Settings → Actions → General."
           fi
 
