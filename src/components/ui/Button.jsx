@@ -1,5 +1,5 @@
 /**
- * Botón base. variant: 'primary' | 'accent' | 'ghost'
+ * Botón base. variant: 'primary' | 'accent' | 'ghost' | 'danger'
  */
 export default function Button({
   variant = 'primary',

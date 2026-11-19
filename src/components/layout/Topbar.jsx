@@ -5,7 +5,10 @@ import { SearchInput } from '../ui';
 
 export default function Topbar({ query, onQueryChange, userName = 'Ingeniería Web', userInitials = 'IW' }) {
   const searchRef = useRef(null);
-  useShortcut('k', useCallback(() => searchRef.current?.focus(), []));
+  useShortcut(
+    'k',
+    useCallback(() => searchRef.current?.focus(), [])
+  );
 
   return (
     <div className="topbar">

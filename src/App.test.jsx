@@ -37,7 +37,17 @@ describe('App Kanban', () => {
     render(<App />);
     await addTask(user, 'Temporal');
     await user.click(screen.getByRole('button', { name: 'Eliminar' }));
+    await user.click(screen.getByRole('button', { name: 'Sí, eliminar' }));
     expect(screen.queryByText('Temporal')).not.toBeInTheDocument();
+  });
+
+  it('no elimina la tarea si se cancela la confirmación', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await addTask(user, 'Importante');
+    await user.click(screen.getByRole('button', { name: 'Eliminar' }));
+    await user.click(screen.getByRole('button', { name: 'Cancelar' }));
+    expect(screen.getByText('Importante')).toBeInTheDocument();
   });
 
   it('edita una tarea desde el modal', async () => {
