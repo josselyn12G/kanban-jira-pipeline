@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AppShell, Topbar, ProjectHeader, ViewTabs } from './components/layout';
 import { Board, BoardToolbar } from './components/board';
 import { TaskModal } from './components/task';
+import { ConfirmDialog } from './components/ui';
 import { useTasks } from './hooks/useTasks';
 import { STATUS } from './constants/task';
 import { filterTasks, sortTasks, getTasksByStatus } from './utils/taskUtils';
@@ -12,6 +13,7 @@ export default function App() {
   const [sortBy, setSortBy] = useState('created');
   // null = cerrado · { task: undefined } = crear · { task } = editar
   const [modal, setModal] = useState(null);
+  const [toDelete, setToDelete] = useState(null);
 
   const visibleTasks = sortTasks(filterTasks(tasks, query), sortBy);
   const doneCount = getTasksByStatus(tasks, STATUS.DONE).length;
@@ -42,11 +44,23 @@ export default function App() {
       <Board
         tasks={visibleTasks}
         onEdit={(task) => setModal({ task })}
-        onDelete={remove}
+        onDelete={(id) => setToDelete(tasks.find((t) => t.id === id))}
         onMove={move}
         onClearDone={clearDone}
       />
       {modal && <TaskModal task={modal.task} onSubmit={handleSubmit} onClose={() => setModal(null)} />}
+      {toDelete && (
+        <ConfirmDialog
+          title="Eliminar tarea"
+          message={`¿Seguro que deseas eliminar «${toDelete.title}»? Esta acción no se puede deshacer.`}
+          confirmLabel="Sí, eliminar"
+          onConfirm={() => {
+            remove(toDelete.id);
+            setToDelete(null);
+          }}
+          onCancel={() => setToDelete(null)}
+        />
+      )}
     </AppShell>
   );
 }
