@@ -1,9 +1,9 @@
 name: CD
 
-# Despliegue: se ejecuta solo cuando el workflow CI termina con éxito tras un push.
-#   - develop -> Preview en Vercel + PR de release hacia main (entrega continua).
-#   - main    -> Producción en Vercel (despliegue continuo).
-# Así los Pull Requests solo muestran los checks de validación.
+# Se ejecuta solo cuando el workflow CI termina con éxito tras un push.
+#   - develop -> abre o actualiza el PR de release hacia main (entrega continua).
+#   - main    -> Vercel despliega automáticamente (integración con GitHub) y este
+#                workflow verifica que producción responda (despliegue continuo).
 
 on:
   workflow_run:
@@ -19,64 +19,15 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  NODE_VERSION: 22
-  VERCEL_CLI_VERSION: 66.2.0
+  PRODUCTION_URL: https://kanban-jira-pipeline.vercel.app
 
 jobs:
-  gate:
-    name: gate
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
-    steps:
-      - run: echo "CI aprobado en ${{ github.event.workflow_run.head_branch }} (${{ github.event.workflow_run.head_sha }})"
-
-  deploy-preview:
-    name: deploy-preview
-    if: ${{ github.event.workflow_run.head_branch == 'develop' }}
-    needs: gate
-    runs-on: ubuntu-latest
-    environment:
-      name: preview
-      url: ${{ steps.deploy.outputs.url }}
-    env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-
-      - name: Verificar credenciales de Vercel
-        id: check
-        run: |
-          if [ -z "$VERCEL_TOKEN" ]; then
-            echo "::warning::VERCEL_TOKEN no configurado: se omite el despliegue desde Actions."
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Desplegar Preview en Vercel
-        id: deploy
-        if: steps.check.outputs.enabled == 'true'
-        run: |
-          npm install --global vercel@${VERCEL_CLI_VERSION}
-          vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
-          vercel build --token="$VERCEL_TOKEN"
-          url=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
-          echo "url=$url" >> "$GITHUB_OUTPUT"
-          echo "### 🔍 Preview desplegado: $url" >> "$GITHUB_STEP_SUMMARY"
-
   release-pr:
     name: release-pr
-    needs: gate
-    if: ${{ github.event.workflow_run.head_branch == 'develop' }}
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'develop'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -90,7 +41,7 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
 
-      - name: Abrir PR develop → main si no existe
+      - name: Abrir o actualizar el PR develop → main
         run: |
           ahead=$(gh api "repos/$REPO/compare/main...develop" --jq '.ahead_by')
           if [ "$ahead" = "0" ]; then
@@ -101,55 +52,43 @@ jobs:
           if [ -n "$existing" ]; then
             echo "Ya existe el PR #$existing (se actualiza con este push)."
             echo "### 📦 Release PR: #$existing" >> "$GITHUB_STEP_SUMMARY"
-          else
-            version=$(node -p "require('./package.json').version")
-            cambios=$(git log --no-merges --format='- %s' origin/main..origin/develop)
-            body=$(printf 'Release generado automáticamente por el pipeline tras pasar lint, pruebas y build en `develop`. Al hacer merge se despliega a producción.\n\n## Cambios\n%s\n' "$cambios")
-            gh pr create --repo "$REPO" --base main --head develop \
-              --title "chore(release): versión $version" \
-              --body "$body" \
-            || echo "::warning::No se pudo crear el PR. Activa 'Allow GitHub Actions to create and approve pull requests' en Settings → Actions → General."
+            exit 0
           fi
+          version=$(node -p "require('./package.json').version")
+          cambios=$(git log --no-merges --format='- %s' origin/main..origin/develop)
+          body=$(printf 'Release generado automáticamente por el pipeline tras pasar lint, pruebas y build en `develop`. Al hacer merge, Vercel despliega a producción.\n\n## Cambios\n%s\n' "$cambios")
+          url=$(gh pr create --repo "$REPO" --base main --head develop \
+            --title "chore(release): versión $version" \
+            --body "$body")
+          echo "### 📦 Release PR creado: $url" >> "$GITHUB_STEP_SUMMARY"
 
-  deploy-production:
-    name: deploy-production
-    if: ${{ github.event.workflow_run.head_branch == 'main' }}
-    needs: gate
+  verify-production:
+    name: verify-production
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: ${{ steps.deploy.outputs.url }}
-    env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+      url: ${{ env.PRODUCTION_URL }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-
-      - name: Verificar credenciales de Vercel
-        id: check
+      - name: Esperar el despliegue de Vercel y verificar la versión
         run: |
-          if [ -z "$VERCEL_TOKEN" ]; then
-            echo "::warning::VERCEL_TOKEN no configurado: se omite el despliegue desde Actions."
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Desplegar a Producción en Vercel
-        id: deploy
-        if: steps.check.outputs.enabled == 'true'
-        run: |
-          npm install --global vercel@${VERCEL_CLI_VERSION}
-          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
-          vercel build --prod --token="$VERCEL_TOKEN"
-          url=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
-          echo "url=$url" >> "$GITHUB_OUTPUT"
-          echo "### 🚀 Producción desplegada: $url" >> "$GITHUB_STEP_SUMMARY"
+          version=$(node -p "require('./package.json').version")
+          for i in $(seq 1 20); do
+            html=$(curl -fsS "$PRODUCTION_URL" || true)
+            js=$(echo "$html" | grep -o 'assets/index-[^"]*\.js' | head -1)
+            if [ -n "$js" ] && curl -fsS "$PRODUCTION_URL/$js" | grep -qF -- "$version"; then
+              echo "### 🚀 Producción en línea con la versión $version: $PRODUCTION_URL" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            echo "Intento $i: aún no está la versión $version, reintentando en 15 s..."
+            sleep 15
+          done
+          echo "::error::Producción no respondió con la versión $version"
+          exit 1

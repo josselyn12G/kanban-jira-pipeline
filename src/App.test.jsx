@@ -68,7 +68,7 @@ describe('App Kanban', () => {
     render(<App />);
     await addTask(user, 'Login');
     await addTask(user, 'Dashboard');
-    await user.type(screen.getByLabelText('Filtrar tareas'), 'dash');
+    await user.type(screen.getByLabelText('Buscar tarea'), 'dash');
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
     expect(screen.queryByText('Login')).not.toBeInTheDocument();
   });
