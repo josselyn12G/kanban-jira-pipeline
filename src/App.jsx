@@ -8,6 +8,7 @@ import {
   deleteTask,
   moveTask,
   getTasksByStatus,
+  clearCompleted,
 } from './taskUtils';
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
             onEdit={(id, data) => setTasks((prev) => updateTask(prev, id, data))}
             onDelete={(id) => setTasks((prev) => deleteTask(prev, id))}
             onMove={(id, st) => setTasks((prev) => moveTask(prev, id, st))}
+            onClear={s.id === 'done' ? () => setTasks((prev) => clearCompleted(prev)) : undefined}
           />
         ))}
       </div>

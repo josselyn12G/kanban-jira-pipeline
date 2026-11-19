@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createTask, updateTask, deleteTask, moveTask, getTasksByStatus } from './taskUtils';
+import { createTask, updateTask, deleteTask, moveTask, getTasksByStatus, clearCompleted } from './taskUtils';
 
 describe('taskUtils', () => {
   it('crea una tarea en estado Pendiente', () => {
@@ -37,5 +37,13 @@ describe('taskUtils', () => {
   it('rechaza un estado inválido', () => {
     const [task] = createTask([], { title: 'X' });
     expect(() => moveTask([task], task.id, 'archived')).toThrow();
+  });
+
+  it('limpia solo las tareas completadas', () => {
+    const tasks = createTask(createTask([], { title: 'Hecha' }), { title: 'Pendiente' });
+    const moved = moveTask(tasks, tasks[0].id, 'done');
+    const result = clearCompleted(moved);
+    expect(result).toHaveLength(1);
+    expect(result[0].title).toBe('Pendiente');
   });
 });

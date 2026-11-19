@@ -50,3 +50,7 @@ export function moveTask(tasks, id, status) {
 export function getTasksByStatus(tasks, status) {
   return tasks.filter((t) => t.status === status);
 }
+
+export function clearCompleted(tasks) {
+  return tasks.filter((t) => t.status !== 'done');
+}

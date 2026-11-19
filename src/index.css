@@ -32,3 +32,4 @@ button.danger { background: var(--danger); }
 .card.status-done { border-left-color: var(--done); }
 .card h3 { margin: 0 0 6px; font-size: 16px; }
 .card p { margin: 0 0 10px; color: var(--muted); font-size: 14px; }
+.clear-btn { width: 100%; margin-bottom: 10px; font-size: 13px; }
