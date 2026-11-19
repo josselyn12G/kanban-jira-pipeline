@@ -1,7 +1,12 @@
+import { useCallback, useRef } from 'react';
 import { Icon } from '../icons';
+import { useShortcut } from '../../hooks/useShortcut';
 import { SearchInput } from '../ui';
 
 export default function Topbar({ query, onQueryChange, userName = 'Ingeniería Web', userInitials = 'IW' }) {
+  const searchRef = useRef(null);
+  useShortcut('k', useCallback(() => searchRef.current?.focus(), []));
+
   return (
     <div className="topbar">
       <SearchInput
@@ -11,6 +16,7 @@ export default function Topbar({ query, onQueryChange, userName = 'Ingeniería W
         value={query}
         onChange={onQueryChange}
         shortcut="⌘K"
+        inputRef={searchRef}
       />
       <div className="topbar-right">
         <span className="pill icon-pill" title="Notificaciones">
