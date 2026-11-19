@@ -3,8 +3,10 @@ import { AppShell, ProjectHeader, ViewTabs } from './components/layout';
 import { Board, BoardToolbar } from './components/board';
 import { TaskModal } from './components/task';
 import { ConfirmDialog } from './components/ui';
+import { CalendarView, ListView, SummaryView } from './components/views';
+import { useLocalStorage } from './hooks/useLocalStorage';
 import { useTasks } from './hooks/useTasks';
-import { STATUS } from './constants/task';
+import { STATUS, VIEW, VIEW_STORAGE_KEY } from './constants/task';
 import { filterTasks, sortTasks, getTasksByStatus } from './utils/taskUtils';
 
 export default function App() {
@@ -14,9 +16,13 @@ export default function App() {
   // null = cerrado · { task: undefined } = crear · { task } = editar
   const [modal, setModal] = useState(null);
   const [toDelete, setToDelete] = useState(null);
+  const [view, setView] = useLocalStorage(VIEW_STORAGE_KEY, VIEW.BOARD);
 
   const visibleTasks = sortTasks(filterTasks(tasks, query), sortBy);
   const doneCount = getTasksByStatus(tasks, STATUS.DONE).length;
+
+  const openTask = (task) => setModal({ task });
+  const askDelete = (id) => setToDelete(tasks.find((t) => t.id === id));
 
   function handleSubmit(data) {
     if (modal.task) update(modal.task.id, data);
@@ -32,21 +38,29 @@ export default function App() {
         done={doneCount}
         total={tasks.length}
       />
-      <ViewTabs />
+      <ViewTabs value={view} onChange={setView} />
       <BoardToolbar
         query={query}
         onQueryChange={setQuery}
         sortBy={sortBy}
         onSortChange={setSortBy}
         onAdd={() => setModal({})}
+        showFilters={view !== VIEW.SUMMARY}
       />
-      <Board
-        tasks={visibleTasks}
-        onEdit={(task) => setModal({ task })}
-        onDelete={(id) => setToDelete(tasks.find((t) => t.id === id))}
-        onMove={move}
-        onClearDone={clearDone}
-      />
+      {view === VIEW.SUMMARY && <SummaryView tasks={tasks} onOpen={openTask} />}
+      {view === VIEW.LIST && (
+        <ListView tasks={visibleTasks} onEdit={openTask} onDelete={askDelete} onMove={move} />
+      )}
+      {view === VIEW.BOARD && (
+        <Board
+          tasks={visibleTasks}
+          onEdit={openTask}
+          onDelete={askDelete}
+          onMove={move}
+          onClearDone={clearDone}
+        />
+      )}
+      {view === VIEW.CALENDAR && <CalendarView tasks={visibleTasks} onOpen={openTask} />}
       {modal && <TaskModal task={modal.task} onSubmit={handleSubmit} onClose={() => setModal(null)} />}
       {toDelete && (
         <ConfirmDialog

@@ -41,6 +41,16 @@ export const Icon = {
       <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
     </svg>
   ),
+  ChevronLeft: () => (
+    <svg {...base}>
+      <path d="M15 6l-6 6 6 6" />
+    </svg>
+  ),
+  ChevronRight: () => (
+    <svg {...base}>
+      <path d="M9 6l6 6-6 6" />
+    </svg>
+  ),
   Search: () => (
     <svg {...base} width={15} height={15}>
       <circle cx="11" cy="11" r="7" />

@@ -23,6 +23,23 @@ export const SORT_OPTIONS = [
   { id: 'priority', label: 'Prioridad' },
   { id: 'progress', label: 'Progreso' },
   { id: 'title', label: 'Título' },
+  { id: 'due', label: 'Fecha límite' },
 ];
 
 export const STORAGE_KEY = 'kanban-tasks';
+
+export const VIEW = Object.freeze({
+  SUMMARY: 'summary',
+  LIST: 'list',
+  BOARD: 'board',
+  CALENDAR: 'calendar',
+});
+
+export const VIEWS = [
+  { id: VIEW.SUMMARY, label: 'Resumen' },
+  { id: VIEW.LIST, label: 'Lista' },
+  { id: VIEW.BOARD, label: 'Tablero' },
+  { id: VIEW.CALENDAR, label: 'Calendario' },
+];
+
+export const VIEW_STORAGE_KEY = 'kanban-view';

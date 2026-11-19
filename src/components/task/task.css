@@ -110,3 +110,8 @@
     grid-template-columns: 1fr;
   }
 }
+
+.date.overdue {
+  color: var(--danger);
+  font-weight: 600;
+}
