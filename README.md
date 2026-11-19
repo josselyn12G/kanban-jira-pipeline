@@ -2,7 +2,7 @@
 
 Aplicación Kanban en **React + Vite** para crear, editar, eliminar y mover tareas entre **Pendiente**, **En progreso** y **Completado**, con prioridad, progreso, búsqueda, ordenamiento y arrastrar y soltar.
 
-🌐 Producción: https://kanban-jira-pipeline.vercel.app
+🌐 Producción: https://kanban-jira-pipeline.vercel.app (Vercel) · Render: ver `render.yaml`
 
 ## Scripts
 
@@ -33,16 +33,23 @@ src/
 
 ## Flujo de ramas y CI/CD
 
+Se sigue **GitFlow** con títulos de PR y commits en **Conventional Commits** (`feat(scope): …`, `fix(scope): …`, `chore(release): versión X.Y.Z`).
+
 ```
-feature → develop ──(PR automático)──► main
-            │                           │
-     CI + Preview Vercel        CI + Producción Vercel
+feat/* · fix/*  ──PR──►  develop  ──PR de release──►  main
+                           │                           │
+                   CI ► CD: Preview              CI ► CD: Producción
 ```
 
-- **CI** (`.github/workflows/ci.yml`): en cada push y PR a `develop`/`main` → `npm ci`, lint, pruebas y build.
-- **Entrega continua**: un push a `develop` que pasa CI despliega un *Preview* y abre/actualiza el PR `develop → main`.
-- **Despliegue continuo**: un merge a `main` que pasa CI despliega a *Producción*.
+| Workflow | Disparador | Qué hace |
+|---|---|---|
+| `ci.yml` (CI) | push y PR a `develop`/`main` | `npm ci` → lint → pruebas → build |
+| `cd.yml` (CD) | CI exitoso tras un push | `develop`: Preview + PR de release · `main`: Producción |
+| `commits.yml` | PR | Valida título del PR y commits (Conventional Commits) |
+
 - `main` está protegida: requiere PR y el check `build-and-test` en verde.
+- **Vercel** despliega `main` a producción y cada PR como Preview.
+- **Render** (`render.yaml`) despliega `main` como sitio estático cuando los checks pasan.
 
 ### Configuración requerida
 
