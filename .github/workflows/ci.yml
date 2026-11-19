@@ -1,13 +1,28 @@
 name: CI
 
+# Integración continua: en cada push a develop/main y en cada Pull Request
+# se instalan dependencias, se ejecuta ESLint, las pruebas con Vitest y el build.
+# Si termina bien en un push, el workflow CD (cd.yml) se encarga de desplegar.
+
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 22
 
 jobs:
   build-and-test:
+    name: build-and-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout del código
@@ -16,14 +31,24 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
       - name: Instalar dependencias
         run: npm ci
+
+      - name: Lint (ESLint)
+        run: npm run lint
 
       - name: Ejecutar pruebas (Vitest)
         run: npm test
 
       - name: Build de producción
         run: npm run build
+
+      - name: Guardar artefacto del build
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 7
