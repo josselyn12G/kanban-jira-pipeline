@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AppShell, Topbar, ProjectHeader, ViewTabs } from './components/layout';
+import { AppShell, ProjectHeader, ViewTabs } from './components/layout';
 import { Board, BoardToolbar } from './components/board';
 import { TaskModal } from './components/task';
 import { ConfirmDialog } from './components/ui';
@@ -26,7 +26,6 @@ export default function App() {
 
   return (
     <AppShell>
-      <Topbar query={query} onQueryChange={setQuery} />
       <ProjectHeader
         title="Tablero Kanban"
         project="Gestión de tareas"
