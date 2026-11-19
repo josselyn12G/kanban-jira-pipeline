@@ -1,0 +1,10 @@
+node_modules
+dist
+.vercel
+.DS_Store
+*.log
+
+# Informe y evidencias (no se versionan)
+informe/
+*.docx
+~$*.docx
