@@ -128,6 +128,9 @@
   max-width: 100%;
 }
 .tab {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -136,6 +139,9 @@
   font-size: 13px;
   color: var(--muted);
   white-space: nowrap;
+}
+.tab:hover {
+  color: var(--text);
 }
 .tab.active {
   background: var(--accent);

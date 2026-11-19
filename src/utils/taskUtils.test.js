@@ -8,6 +8,7 @@ import {
   clearCompleted,
   filterTasks,
   sortTasks,
+  getSummary,
 } from './taskUtils';
 
 describe('taskUtils', () => {
@@ -74,5 +75,24 @@ describe('taskUtils', () => {
     tasks = createTask(tasks, { title: 'Logo' });
     expect(filterTasks(tasks, 'usuarios')).toHaveLength(1);
     expect(filterTasks(tasks, '')).toHaveLength(2);
+  });
+
+  it('calcula el resumen por estado, prioridad y vencidas', () => {
+    let tasks = createTask([], { title: 'A', priority: 'high', dueDate: '2026-11-10' });
+    tasks = createTask(tasks, { title: 'B', priority: 'low', dueDate: '2026-11-25' });
+    tasks = moveTask(tasks, tasks[1].id, 'done');
+    const summary = getSummary(tasks, new Date(2026, 10, 18));
+    expect(summary.total).toBe(2);
+    expect(summary.byStatus).toEqual({ pending: 1, 'in-progress': 0, done: 1 });
+    expect(summary.byPriority.high).toBe(1);
+    expect(summary.overdue).toBe(1);
+    expect(summary.averageProgress).toBe(50);
+  });
+
+  it('ordena por fecha límite dejando al final las tareas sin fecha', () => {
+    let tasks = createTask([], { title: 'Sin fecha' });
+    tasks = createTask(tasks, { title: 'Tarde', dueDate: '2026-12-01' });
+    tasks = createTask(tasks, { title: 'Pronto', dueDate: '2026-11-20' });
+    expect(sortTasks(tasks, 'due').map((t) => t.title)).toEqual(['Pronto', 'Tarde', 'Sin fecha']);
   });
 });

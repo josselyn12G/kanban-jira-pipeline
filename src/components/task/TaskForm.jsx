@@ -7,6 +7,7 @@ export default function TaskForm({ initial, onSubmit, onCancel, submitLabel = 'A
   const [description, setDescription] = useState(initial?.description ?? '');
   const [priority, setPriority] = useState(initial?.priority ?? 'medium');
   const [progress, setProgress] = useState(initial?.progress ?? 0);
+  const [dueDate, setDueDate] = useState(initial?.dueDate ?? '');
   const [error, setError] = useState('');
 
   function handleSubmit(e) {
@@ -15,7 +16,7 @@ export default function TaskForm({ initial, onSubmit, onCancel, submitLabel = 'A
       setError('El título es obligatorio');
       return;
     }
-    onSubmit({ title, description, priority, progress: Number(progress) });
+    onSubmit({ title, description, priority, progress: Number(progress), dueDate });
   }
 
   return (
@@ -57,6 +58,15 @@ export default function TaskForm({ initial, onSubmit, onCancel, submitLabel = 'A
           />
         </label>
       </div>
+      <label className="field">
+        <span>Fecha límite</span>
+        <input
+          type="date"
+          aria-label="Fecha límite"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+        />
+      </label>
       {error && (
         <p className="error" role="alert">
           {error}
