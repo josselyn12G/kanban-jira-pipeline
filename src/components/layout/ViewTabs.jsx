@@ -1,20 +1,32 @@
+import { VIEW, VIEWS } from '../../constants/task';
 import { Icon } from '../icons';
 
-const TABS = [
-  { icon: Icon.Grid, label: 'Resumen' },
-  { icon: Icon.List, label: 'Lista' },
-  { icon: Icon.Board, label: 'Tablero', active: true },
-  { icon: Icon.Calendar, label: 'Calendario' },
-];
+const ICONS = {
+  [VIEW.SUMMARY]: Icon.Grid,
+  [VIEW.LIST]: Icon.List,
+  [VIEW.BOARD]: Icon.Board,
+  [VIEW.CALENDAR]: Icon.Calendar,
+};
 
-export default function ViewTabs() {
+export default function ViewTabs({ value, onChange }) {
   return (
-    <nav className="tabs" aria-label="Vistas">
-      {TABS.map(({ icon: TabIcon, label, active }) => (
-        <span key={label} className={`tab${active ? ' active' : ''}`}>
-          <TabIcon /> {label}
-        </span>
-      ))}
+    <nav className="tabs" role="tablist" aria-label="Vistas">
+      {VIEWS.map(({ id, label }) => {
+        const TabIcon = ICONS[id];
+        const active = id === value;
+        return (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            className={`tab${active ? ' active' : ''}`}
+            onClick={() => onChange(id)}
+          >
+            <TabIcon /> {label}
+          </button>
+        );
+      })}
     </nav>
   );
 }

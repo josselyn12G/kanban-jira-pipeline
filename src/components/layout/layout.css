@@ -1,23 +1,23 @@
-/* Layout: shell, sidebar, topbar, encabezado y pestañas */
+/* Layout: shell a pantalla completa, sidebar y encabezado del proyecto */
 .shell {
   display: flex;
-  gap: 20px;
-  max-width: 1320px;
-  margin: 24px auto;
-  padding: 20px;
+  min-height: 100vh;
   background: var(--shell);
-  border-radius: 28px;
-  box-shadow: 0 20px 60px rgba(31, 61, 54, 0.12);
-  min-height: calc(100vh - 48px);
 }
 
 .sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 18px;
-  width: 56px;
+  width: 76px;
   flex-shrink: 0;
+  padding: 20px 0;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
 }
 .logo {
   width: 44px;
@@ -32,13 +32,11 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  background: var(--surface);
-  padding: 8px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
 }
-.nav-bottom {
+.version {
   margin-top: auto;
+  font-size: 11px;
+  color: var(--muted);
 }
 .nav-item {
   width: 38px;
@@ -59,47 +57,8 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-}
-
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 8px 14px;
-  font-size: 13px;
-}
-.topbar-right {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-.icon-pill {
-  padding: 8px;
-}
-.user {
-  font-weight: 500;
-  padding: 5px 14px 5px 5px;
-}
-.avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: var(--teal);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 600;
+  gap: 20px;
+  padding: 28px 32px;
 }
 
 .project {
@@ -169,6 +128,9 @@
   max-width: 100%;
 }
 .tab {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -178,6 +140,9 @@
   color: var(--muted);
   white-space: nowrap;
 }
+.tab:hover {
+  color: var(--text);
+}
 .tab.active {
   background: var(--accent);
   color: var(--text);
@@ -185,16 +150,10 @@
 }
 
 @media (max-width: 720px) {
-  .shell {
-    margin: 0;
-    border-radius: 0;
-    padding: 16px;
-    min-height: 100vh;
-  }
   .sidebar {
     display: none;
   }
-  .user {
-    display: none;
+  .main {
+    padding: 20px 16px;
   }
 }

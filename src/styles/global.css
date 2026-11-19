@@ -4,7 +4,7 @@
 }
 body {
   margin: 0;
-  background: var(--page);
+  background: var(--shell);
   min-height: 100vh;
 }
 button,
