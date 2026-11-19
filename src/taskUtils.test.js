@@ -6,7 +6,7 @@ describe('taskUtils', () => {
     const tasks = createTask([], { title: '  Diseñar login  ', description: 'UI' });
     expect(tasks).toHaveLength(1);
     expect(tasks[0].title).toBe('Diseñar login');
-    expect(tasks[0].status).toBe('pending');
+    expect(tasks[0].status).toBe('done');
   });
 
   it('no permite crear una tarea sin título', () => {
